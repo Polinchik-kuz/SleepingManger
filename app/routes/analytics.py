@@ -30,10 +30,10 @@ def get_statistics(
     
     return {
         "total_records": total_records,
-        "average_duration": round(avg_duration, 2),
+        "average_duration": round(avg_duration, 1),
         "average_quality": round(avg_quality, 2),
-        "max_duration": round(max_duration, 2),
-        "min_duration": round(min_duration, 2)
+        "max_duration": round(max_duration, 1),
+        "min_duration": round(min_duration, 1)
     }
 
 @router.get("/recommendations")
@@ -73,7 +73,7 @@ def get_recommendations(
     recommendations.append("Старайтесь ложиться спать в одно и то же время каждый день")
     
     return {
-        "average_duration": round(avg_duration, 2),
+        "average_duration": round(avg_duration, 1),
         "average_quality": round(avg_quality, 2),
         "recommendations": recommendations
     }

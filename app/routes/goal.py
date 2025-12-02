@@ -14,6 +14,18 @@ def create_goal(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    
+    MAX_GOALS_PER_USER = 10
+    existing_goals_count = db.query(Goal).filter(
+        Goal.user_id == current_user.id
+    ).count()
+    
+    if existing_goals_count >= MAX_GOALS_PER_USER:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Достигнуто максимальное количество целей ({MAX_GOALS_PER_USER}). Удалите старые цели перед созданием новых."
+        )
+    
     new_goal = Goal(
         user_id=current_user.id,
         target_duration=goal_data.target_duration,
