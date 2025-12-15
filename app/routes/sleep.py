@@ -8,7 +8,7 @@ from typing import List
 
 router = APIRouter()
 
-@router.post("/sleep", response_model=sleep_schemas.SleepRecordResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/sleep", response_model=sleep_schemas.SleepRecordResponse, status_code=status.HTTP_201_CREATED, responses={401: {"description": "Не аутентифицирован"}})
 def create_sleep_record(
     sleep_data: sleep_schemas.SleepRecordCreate,
     current_user: User = Depends(get_current_user),
@@ -31,7 +31,7 @@ def create_sleep_record(
     db.refresh(new_record)
     return new_record
 
-@router.get("/sleep/{record_id}", response_model=sleep_schemas.SleepRecordResponse)
+@router.get("/sleep/{record_id}", response_model=sleep_schemas.SleepRecordResponse, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Запись не найдена"}})
 def get_sleep_record(
     record_id: int,
     current_user: User = Depends(get_current_user),
@@ -46,7 +46,7 @@ def get_sleep_record(
         raise HTTPException(status_code=404, detail="Запись не найдена")
     return record
 
-@router.put("/sleep/{record_id}", response_model=sleep_schemas.SleepRecordResponse)
+@router.put("/sleep/{record_id}", response_model=sleep_schemas.SleepRecordResponse, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Запись не найдена"}})
 def update_sleep_record(
     record_id: int,
     sleep_update: sleep_schemas.SleepRecordUpdate,
@@ -81,7 +81,7 @@ def update_sleep_record(
     db.refresh(record)
     return record
 
-@router.delete("/sleep/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/sleep/{record_id}", status_code=status.HTTP_204_NO_CONTENT, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Запись не найдена"}})
 def delete_sleep_record(
     record_id: int,
     current_user: User = Depends(get_current_user),
@@ -99,7 +99,7 @@ def delete_sleep_record(
     db.commit()
     return None
 
-@router.post("/sleep/{record_id}/note", response_model=sleep_schemas.NoteResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/sleep/{record_id}/note", response_model=sleep_schemas.NoteResponse, status_code=status.HTTP_201_CREATED, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Запись о сне не найдена"}})
 def create_note(
     record_id: int,
     note_data: sleep_schemas.NoteCreate,
@@ -123,7 +123,7 @@ def create_note(
     db.refresh(new_note)
     return new_note
 
-@router.get("/sleep", response_model=List[sleep_schemas.SleepRecordResponse])
+@router.get("/sleep", response_model=List[sleep_schemas.SleepRecordResponse], responses={401: {"description": "Не аутентифицирован"}})
 def get_sleep_records(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

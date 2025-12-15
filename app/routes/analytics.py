@@ -6,7 +6,7 @@ from app.auth import get_current_user
 
 router = APIRouter()
 
-@router.get("/statistics")
+@router.get("/statistics", responses={401: {"description": "Не аутентифицирован"}})
 def get_statistics(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -30,13 +30,13 @@ def get_statistics(
     
     return {
         "total_records": total_records,
-        "average_duration": round(avg_duration, 1),
+        "average_duration": round(avg_duration, 2),
         "average_quality": round(avg_quality, 2),
-        "max_duration": round(max_duration, 1),
-        "min_duration": round(min_duration, 1)
+        "max_duration": round(max_duration, 2),
+        "min_duration": round(min_duration, 2)
     }
 
-@router.get("/recommendations")
+@router.get("/recommendations", responses={401: {"description": "Не аутентифицирован"}})
 def get_recommendations(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -73,7 +73,7 @@ def get_recommendations(
     recommendations.append("Старайтесь ложиться спать в одно и то же время каждый день")
     
     return {
-        "average_duration": round(avg_duration, 1),
+        "average_duration": round(avg_duration, 2),
         "average_quality": round(avg_quality, 2),
         "recommendations": recommendations
     }

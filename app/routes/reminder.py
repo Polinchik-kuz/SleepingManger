@@ -7,7 +7,7 @@ from app.auth import get_current_user
 
 router = APIRouter()
 
-@router.post("/reminders", response_model=reminder_schemas.ReminderResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/reminders", response_model=reminder_schemas.ReminderResponse, status_code=status.HTTP_201_CREATED, responses={401: {"description": "Не аутентифицирован"}})
 def create_reminder(
     reminder_data: reminder_schemas.ReminderCreate,
     current_user: User = Depends(get_current_user),
@@ -24,7 +24,7 @@ def create_reminder(
     db.refresh(new_reminder)
     return new_reminder
 
-@router.put("/reminders/{reminder_id}", response_model=reminder_schemas.ReminderResponse)
+@router.put("/reminders/{reminder_id}", response_model=reminder_schemas.ReminderResponse, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Напоминание не найдено"}})
 def update_reminder(
     reminder_id: int,
     reminder_update: reminder_schemas.ReminderUpdate,
@@ -50,7 +50,7 @@ def update_reminder(
     db.refresh(reminder)
     return reminder
 
-@router.delete("/reminders/{reminder_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/reminders/{reminder_id}", status_code=status.HTTP_204_NO_CONTENT, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Напоминание не найдено"}})
 def delete_reminder(
     reminder_id: int,
     current_user: User = Depends(get_current_user),

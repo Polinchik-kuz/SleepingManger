@@ -8,24 +8,12 @@ from typing import List
 
 router = APIRouter()
 
-@router.post("/goals", response_model=goal_schemas.GoalResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/goals", response_model=goal_schemas.GoalResponse, status_code=status.HTTP_201_CREATED, responses={401: {"description": "Не аутентифицирован"}})
 def create_goal(
     goal_data: goal_schemas.GoalCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    
-    MAX_GOALS_PER_USER = 10
-    existing_goals_count = db.query(Goal).filter(
-        Goal.user_id == current_user.id
-    ).count()
-    
-    if existing_goals_count >= MAX_GOALS_PER_USER:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Достигнуто максимальное количество целей ({MAX_GOALS_PER_USER}). Удалите старые цели перед созданием новых."
-        )
-    
     new_goal = Goal(
         user_id=current_user.id,
         target_duration=goal_data.target_duration,
@@ -37,7 +25,7 @@ def create_goal(
     db.refresh(new_goal)
     return new_goal
 
-@router.get("/goals/{goal_id}", response_model=goal_schemas.GoalResponse)
+@router.get("/goals/{goal_id}", response_model=goal_schemas.GoalResponse, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Цель не найдена"}})
 def get_goal(
     goal_id: int,
     current_user: User = Depends(get_current_user),
@@ -52,7 +40,7 @@ def get_goal(
         raise HTTPException(status_code=404, detail="Цель не найдена")
     return goal
 
-@router.put("/goals/{goal_id}", response_model=goal_schemas.GoalResponse)
+@router.put("/goals/{goal_id}", response_model=goal_schemas.GoalResponse, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Цель не найдена"}})
 def update_goal(
     goal_id: int,
     goal_update: goal_schemas.GoalUpdate,
@@ -78,7 +66,7 @@ def update_goal(
     db.refresh(goal)
     return goal
 
-@router.delete("/goals/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/goals/{goal_id}", status_code=status.HTTP_204_NO_CONTENT, responses={401: {"description": "Не аутентифицирован"}, 404: {"description": "Цель не найдена"}})
 def delete_goal(
     goal_id: int,
     current_user: User = Depends(get_current_user),
@@ -96,7 +84,7 @@ def delete_goal(
     db.commit()
     return None
 
-@router.get("/goals", response_model=List[goal_schemas.GoalResponse])
+@router.get("/goals", response_model=List[goal_schemas.GoalResponse], responses={401: {"description": "Не аутентифицирован"}})
 def get_goals(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
